@@ -8,5 +8,5 @@ app.get('/', (req, res) => {
 });
 
 app.listen(3000, () => {
-  console.log('Rota Tinder is Running');
+  console.log('React Seed is Running');
 });

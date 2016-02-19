@@ -7,8 +7,12 @@
   "license": "ISC",
   "dependencies": {
     "babel": "^6.4.2",
+    "express": "^4.13.4",
     "flux": "^2.1.1",
     "react": "^0.14.7"
+  },
+  "scripts": {
+    "start": "node app.js"
   },
   "devDependencies": {
     "babel-plugin-transform-react-jsx": "^6.5.2",

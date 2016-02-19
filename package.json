@@ -6,7 +6,7 @@
   "author": "Henry Kirkness",
   "license": "ISC",
   "dependencies": {
-    "babel": "^5.8.29",
+    "babel": "^6.4.2",
     "flux": "^2.1.1",
     "react": "^0.14.7"
   },

@@ -1,8 +1,8 @@
 {
-  "name": "rotatinder",
+  "name": "react-flux-seed",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "author": "Henry Kirkness",
   "license": "ISC",
   "dependencies": {

@@ -1,47 +1,67 @@
+'use strict';
 
-var source = require('vinyl-source-stream');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
+var nodemon = require('gulp-nodemon');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
 var browserify = require('browserify');
-var reactify = require('reactify');
 var watchify = require('watchify');
 var babelify = require('babelify');
-var notify = require("gulp-notify");
-
-var scriptsDir = './app';
-var buildDir = './public';
-var inputFile = 'run.js';
+var envify = require('envify');
+var lrload = require('livereactload');
 
 
-function buildScript(file, watch) {
-  var props = watchify.args;
-  props.entries = [scriptsDir + '/' + file];
-  props.debug = true;
-
-  var bundler = watchify(browserify(props));
-
-  bundler.transform(babelify, { presets: ['es2015'] });
-  function rebundle() {
-    var stream = bundler.bundle();
-    return stream.on('error', notify.onError({
-        title: "Compile Error",
-        message: "<%= error.message %>"
-      }))
-      .pipe(source(file))
-      .pipe(gulp.dest(buildDir + '/'));
-  }
-  bundler.on('update', function() {
-    rebundle();
-    gutil.log('Rebundle...');
-  });
-  return rebundle();
+function createBundler(useWatchify) {
+  return browserify({
+    entries: [ './src/app.js' ],
+    transform: [ [babelify, {}], [envify, {}] ],
+    plugin: !useWatchify ? [] : [ lrload ],
+    debug: true,
+    cache: {},
+    packageCache: {},
+    fullPaths: true
+  })
 }
 
-gulp.task('build', function() {
-  return buildScript(inputFile, false);
-});
+gulp.task('bundle:js', function() {
+  var bundler = createBundler(false)
+  bundler
+    .bundle()
+    .pipe(source('app.min.js'))
+    .pipe(gulp.dest('.'))
+})
 
+gulp.task('watch:js', function() {
+  var bundler = createBundler(true)
+  var watcher = watchify(bundler)
+  rebundle()
+  return watcher
+    .on('error', gutil.log)
+    .on('update', rebundle)
 
-gulp.task('default', function() {
-  return buildScript(inputFile, true);
-});
+  function rebundle() {
+    gutil.log('Update JavaScript bundle')
+    watcher
+      .bundle()
+      .on('error', gutil.log)
+      .pipe(source('build/app.min.js'))
+      .pipe(buffer())
+      .pipe(gulp.dest('.'))
+  }
+})
+
+gulp.task('watch:server', function() {
+  nodemon({ 
+      script: 'server/run.js', 
+      exec: 'babel-node',
+      ext: 'js', 
+      ignore: ['gulpfile.js', 'build/app.min.js', 'node_modules/*'] 
+    })
+    .on('change', [])
+    .on('restart', function () {
+      console.log('Server restarted')
+    })
+})
+
+gulp.task('default', ['watch:server', 'watch:js'])

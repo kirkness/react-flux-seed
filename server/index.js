@@ -4,10 +4,10 @@ let express = require('express');
 let app = express();
 let path = require('path');
 
-app.use('/', express.static(__dirname + '/../public'));
+app.use('/', express.static(__dirname + '/../build'));
 
 app.get('/', (req, res) => {
-  res.sendFile(path.resolve('app/index.html'));
+  res.sendFile(path.resolve('src/index.html'));
 });
 
 app.listen(3000, () => {
